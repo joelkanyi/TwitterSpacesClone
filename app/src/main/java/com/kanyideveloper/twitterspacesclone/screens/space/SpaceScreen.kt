@@ -6,12 +6,14 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -68,14 +70,16 @@ fun SpaceScreen() {
 @Composable
 fun PeerItem(name: String, role: String) {
     Column(
+        Modifier.padding(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Image(
-            painter = painterResource(id = R.drawable.ic_launcher_background),
+            painter = painterResource(id = R.drawable.avatar),
             modifier = Modifier
                 .size(70.dp)
                 .clip(CircleShape),
+            contentScale = ContentScale.Crop,
             contentDescription = null
         )
         Text(
@@ -84,11 +88,23 @@ fun PeerItem(name: String, role: String) {
             fontSize = 13.sp,
             fontWeight = FontWeight.Bold
         )
-        Text(
-            text = "Speaker",
-            textAlign = TextAlign.Right,
-            fontSize = 11.sp,
-            fontWeight = FontWeight.SemiBold
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_mute_mic),
+                modifier = Modifier
+                    .size(12.dp),
+                tint = Color.Red,
+                contentDescription = null
+            )
+            Spacer(modifier = Modifier.width(5.dp))
+            Text(
+                text = "Speaker",
+                textAlign = TextAlign.Right,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
     }
 }

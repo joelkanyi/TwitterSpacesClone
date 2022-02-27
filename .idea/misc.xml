@@ -4,6 +4,7 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="app/src/main/res/drawable/audio_wave.xml" value="0.2755" />
+        <entry key="app/src/main/res/drawable/ic_mute_mic.xml" value="0.2755" />
       </map>
     </option>
   </component>
