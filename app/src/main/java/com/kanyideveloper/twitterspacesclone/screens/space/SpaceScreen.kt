@@ -2,6 +2,7 @@ package com.kanyideveloper.twitterspacesclone.screens.space
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
@@ -9,6 +10,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -22,11 +28,15 @@ import androidx.compose.ui.unit.sp
 import com.kanyideveloper.twitterspacesclone.R
 import com.ramcosta.composedestinations.annotation.Destination
 import live.hms.video.connection.degredation.Peer
+import live.hms.video.media.tracks.HMSAudioTrack
+import live.hms.video.sdk.models.HMSPeer
 
 @OptIn(ExperimentalFoundationApi::class)
 @Destination
 @Composable
-fun SpaceScreen() {
+fun SpaceScreen(
+    peers: State<List<HMSPeer>>
+) {
     Column(Modifier.fillMaxSize()) {
         Text(
             modifier = Modifier
@@ -56,19 +66,17 @@ fun SpaceScreen() {
             cells = GridCells.Fixed(4),
             contentPadding = PaddingValues(8.dp)
         ) {
-            items(30) {
+            items(peers.value.size) {
                 PeerItem(
-                    name = "Joel Kanyi",
-                    role = "Host"
+                    peers.value[it]
                 )
             }
         }
-
     }
 }
 
 @Composable
-fun PeerItem(name: String, role: String) {
+fun PeerItem(peer: HMSPeer) {
     Column(
         Modifier.padding(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -83,10 +91,12 @@ fun PeerItem(name: String, role: String) {
             contentDescription = null
         )
         Text(
-            text = "Joel Kanyi",
-            textAlign = TextAlign.Right,
-            fontSize = 13.sp,
-            fontWeight = FontWeight.Bold
+            peer.name,
+            modifier = Modifier
+                .background(Color(0x80CCCCCC))
+                .padding(4.dp)
+                .fillMaxWidth(),
+            textAlign = TextAlign.Center
         )
         Row(
             verticalAlignment = Alignment.CenterVertically
@@ -100,7 +110,7 @@ fun PeerItem(name: String, role: String) {
             )
             Spacer(modifier = Modifier.width(5.dp))
             Text(
-                text = "Speaker",
+                text = peer.hmsRole.name,
                 textAlign = TextAlign.Right,
                 fontSize = 10.sp,
                 fontWeight = FontWeight.SemiBold

@@ -21,16 +21,23 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.kanyideveloper.twitterspacesclone.R
 import com.kanyideveloper.twitterspacesclone.screens.destinations.SpaceScreenDestination
+import com.kanyideveloper.twitterspacesclone.screens.space.SpaceViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import timber.log.Timber
 
 @Destination(start = true)
 @Composable
 fun HomeScreen(
-    navigator: DestinationsNavigator
+    navigator: DestinationsNavigator,
+    viewModel: SpaceViewModel = hiltViewModel()
 ) {
+
+    Timber.d(viewModel.peers.value.toString())
+
     LazyColumn {
 
         item {
@@ -62,6 +69,7 @@ fun HomeScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(randomColor),
+                viewModel = viewModel,
                 navigator = navigator
             )
         }
@@ -71,6 +79,7 @@ fun HomeScreen(
 @Composable
 fun SpaceItem(
     modifier: Modifier = Modifier,
+    viewModel: SpaceViewModel = hiltViewModel(),
     navigator: DestinationsNavigator
 ) {
 
@@ -80,7 +89,7 @@ fun SpaceItem(
             .height(250.dp)
             .padding(10.dp)
             .clickable {
-               navigator.navigate(SpaceScreenDestination)
+                navigator.navigate(SpaceScreenDestination)
             },
         elevation = 5.dp,
         shape = RoundedCornerShape(8.dp)

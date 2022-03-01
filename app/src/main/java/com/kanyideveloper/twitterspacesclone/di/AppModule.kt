@@ -2,12 +2,15 @@ package com.kanyideveloper.twitterspacesclone.di
 
 import android.app.Application
 import com.kanyideveloper.twitterspacesclone.data.network.TokenRequestApi
+import com.kanyideveloper.twitterspacesclone.data.repository.SpaceRepository
 import com.kanyideveloper.twitterspacesclone.util.Constants.TOKEN_ENDPOINT
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import live.hms.video.sdk.HMSSDK
+import live.hms.video.sdk.models.enums.HMSAnalyticsEventLevel
+import live.hms.video.utils.HMSLogger
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -51,7 +54,14 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideAudioSdk(application: Application): HMSSDK {
-        return HMSSDK.Builder(application).build()
+    fun provideHMSSdk(application: Application): HMSSDK {
+        return HMSSDK.Builder(application)
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideSpaceRepository(api: TokenRequestApi, hmssdk: HMSSDK): SpaceRepository {
+        return SpaceRepository(api, hmssdk)
     }
 }

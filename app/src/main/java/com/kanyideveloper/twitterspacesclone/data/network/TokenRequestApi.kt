@@ -7,5 +7,5 @@ import retrofit2.http.POST
 
 interface TokenRequestApi {
     @POST("api/token")
-    fun getToken(@Body tokenRequest: TokenRequest): TokenResponse
+    suspend fun getToken(@Body tokenRequest: TokenRequest): TokenResponse
 }
