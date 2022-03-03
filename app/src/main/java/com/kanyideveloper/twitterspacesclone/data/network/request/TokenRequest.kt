@@ -8,5 +8,5 @@ data class TokenRequest(
     @SerializedName("user_id")
     val userId: String,
     @SerializedName("role")
-    val role: String = "Listener",
+    val role: String = "listener",
 )
