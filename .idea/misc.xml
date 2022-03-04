@@ -5,6 +5,10 @@
       <map>
         <entry key="../../../../layout/compose-model-1646015850043.xml" value="0.3112331081081081" />
         <entry key="app/src/main/res/drawable/audio_wave.xml" value="0.2755" />
+        <entry key="app/src/main/res/drawable/ic_big_mic.xml" value="0.3135" />
+        <entry key="app/src/main/res/drawable/ic_feather.xml" value="0.3135" />
+        <entry key="app/src/main/res/drawable/ic_mic_mute.xml" value="0.3135" />
+        <entry key="app/src/main/res/drawable/ic_mic_mute_alt.xml" value="0.3135" />
         <entry key="app/src/main/res/drawable/ic_mute_mic.xml" value="0.2755" />
       </map>
     </option>

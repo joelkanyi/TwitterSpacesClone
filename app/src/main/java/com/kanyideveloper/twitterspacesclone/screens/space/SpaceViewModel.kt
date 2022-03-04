@@ -37,7 +37,7 @@ class SpaceViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            startMeeting("Joel")
+           // startMeeting("Joel")
         }
     }
 
@@ -53,12 +53,13 @@ class SpaceViewModel @Inject constructor(
 
                 override fun onError(error: HMSException) {
                     Timber.d("An Error occurred")
-                    Timber.d(error.name)
+                    Timber.d(error.message)
                 }
 
                 override fun onJoin(room: HMSRoom) {
                     Timber.d("Room joined")
                     _peers.value = room.peerList.asList()
+                    Timber.d("Peers: ${_peers.value.get(0).name}")
                 }
 
                 override fun onMessageReceived(message: HMSMessage) {

@@ -89,7 +89,7 @@ fun SpaceItem(
             .height(250.dp)
             .padding(10.dp)
             .clickable {
-                navigator.navigate(SpaceScreenDestination)
+                navigator.navigate(SpaceScreenDestination())
             },
         elevation = 5.dp,
         shape = RoundedCornerShape(8.dp)
