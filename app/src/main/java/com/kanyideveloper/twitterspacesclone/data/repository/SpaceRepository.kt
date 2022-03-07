@@ -28,7 +28,7 @@ class SpaceRepository @Inject constructor(
         userName: String,
         roomId: String = "620b0d326f2b876d58ef3bc7"
     ): TokenResponse {
-        return api.getToken(TokenRequest(userId = userName, roomId = roomId))
+        return api.getToken(TokenRequest(userId = userName, roomId = roomId, role = "speaker"))
     }
 
     fun joinRoom(userName: String, authToken: String, updateListener: HMSUpdateListener) {
@@ -42,5 +42,15 @@ class SpaceRepository @Inject constructor(
 
     fun leaveRoom() {
         hmsSdk.leave()
+    }
+
+    fun setLocalAudioEnabled(enabled: Boolean) {
+        hmsSdk.getLocalPeer()?.audioTrack?.apply {
+            setMute(!enabled)
+        }
+    }
+
+    fun isLocalAudioEnabled(): Boolean? {
+        return hmsSdk.getLocalPeer()?.audioTrack?.isMute?.not()
     }
 }

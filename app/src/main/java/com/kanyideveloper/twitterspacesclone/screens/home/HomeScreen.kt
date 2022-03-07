@@ -12,6 +12,11 @@ import androidx.compose.material.MaterialTheme.typography
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -19,6 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -27,8 +33,10 @@ import com.kanyideveloper.twitterspacesclone.screens.destinations.SpaceScreenDes
 import com.kanyideveloper.twitterspacesclone.screens.space.SpaceViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
+@OptIn(ExperimentalMaterialApi::class)
 @Destination(start = true)
 @Composable
 fun HomeScreen(
@@ -36,61 +44,106 @@ fun HomeScreen(
     viewModel: SpaceViewModel = hiltViewModel()
 ) {
 
-    Timber.d(viewModel.peers.value.toString())
+    val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
+        bottomSheetState = BottomSheetState(BottomSheetValue.Collapsed)
+    )
+    val coroutineScope = rememberCoroutineScope()
+    BottomSheetScaffold(
+        scaffoldState = bottomSheetScaffoldState,
+        sheetContent = {
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .height(200.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                )  {
+                    var name by remember { mutableStateOf("") }
+                    TextField(
+                        value = name,
+                        onValueChange = {
+                            name = it
+                        },
+                        label = { Text(text = "Enter you name") },
+                        placeholder = { Text(text = "John Doe") },
+                    )
 
-    LazyColumn {
+                    Button(onClick = {
+                        navigator.navigate(SpaceScreenDestination(name))
+                    }) {
+                        Text(text = "Join Space")
+                    }
+                }
+            }
+        }, sheetPeekHeight = 0.dp
+    ) {
 
-        item {
-            Column(Modifier.padding(8.dp)) {
-                Text(
-                    text = "Happening Now",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = "Spaces going on right now",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Light
+        Timber.d(viewModel.peers.value.toString())
+
+        LazyColumn {
+
+            item {
+                Column(Modifier.padding(8.dp)) {
+                    Text(
+                        text = "Happening Now",
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = "Spaces going on right now",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Light
+                    )
+                }
+            }
+
+            val colors = listOf(
+                0xFF556b2f,
+                0xFF5f6f7e,
+                0xFF8c53c6,
+                0xFFcc0000,
+                0xFF8b4513,
+            )
+
+            items(10) {
+                val randomColor = (Color(colors.random()))
+                SpaceItem(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(randomColor)
+                        .clickable {
+                            coroutineScope.launch {
+                                if (bottomSheetScaffoldState.bottomSheetState.isCollapsed) {
+                                    bottomSheetScaffoldState.bottomSheetState.expand()
+                                } else {
+                                    bottomSheetScaffoldState.bottomSheetState.collapse()
+                                }
+                            }
+                        },
+                    viewModel = viewModel,
+                    navigator = navigator
                 )
             }
-        }
-
-        val colors = listOf(
-            0xFF556b2f,
-            0xFF5f6f7e,
-            0xFF8c53c6,
-            0xFFcc0000,
-            0xFF8b4513,
-        )
-
-        items(10) {
-            val randomColor = (Color(colors.random()))
-            SpaceItem(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(randomColor),
-                viewModel = viewModel,
-                navigator = navigator
-            )
         }
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun SpaceItem(
     modifier: Modifier = Modifier,
     viewModel: SpaceViewModel = hiltViewModel(),
     navigator: DestinationsNavigator
 ) {
-
+    
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .height(250.dp)
-            .padding(10.dp)
-            .clickable {
-                navigator.navigate(SpaceScreenDestination())
-            },
+            .padding(10.dp),
         elevation = 5.dp,
         shape = RoundedCornerShape(8.dp)
     ) {

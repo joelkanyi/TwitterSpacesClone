@@ -124,4 +124,7 @@ dependencies {
 
     // Timber
     implementation 'com.jakewharton.timber:timber:5.0.1'
+
+    // Livedata
+    implementation 'androidx.compose.runtime:runtime-livedata:1.2.0-alpha04'
 }
