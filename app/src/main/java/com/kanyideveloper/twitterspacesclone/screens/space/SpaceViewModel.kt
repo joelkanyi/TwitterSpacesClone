@@ -53,8 +53,8 @@ class SpaceViewModel @Inject constructor(
         repository.leaveRoom()
     }
 
-    fun isLocalAudioEnabled(): Boolean {
-        return repository.isLocalAudioEnabled() ?: false
+    fun isLocalAudioEnabled(): Boolean? {
+        return repository.isLocalAudioEnabled()
     }
 
     fun setLocalAudioEnabled(enabled: Boolean) {
@@ -135,6 +135,7 @@ class SpaceViewModel @Inject constructor(
                                     _peers.value =
                                         _peers.value.filter { currentPeer -> currentPeer.peerID != peer.peerID }
                                             .plus(peer).sortedWith(peerComparator)
+
                                 } else {
                                     Timber.d("Not processed, $type, $track")
                                 }

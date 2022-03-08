@@ -143,7 +143,7 @@ fun BottomMicItem(
                         }
 
                         viewModel.setLocalAudioEnabled(
-                            !viewModel.isLocalAudioEnabled()
+                            !viewModel.isLocalAudioEnabled()!!
                         )
                     },
                     modifier = Modifier
@@ -160,7 +160,7 @@ fun BottomMicItem(
                 }
 
                 Text(
-                    text = when (hmsLocalPeer?.audioTrack?.isMute) {
+                    text = when (viewModel.isLocalAudioEnabled()) {
                         true -> {
                             "Mic is off"
                         }
