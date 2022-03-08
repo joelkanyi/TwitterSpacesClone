@@ -127,4 +127,7 @@ dependencies {
 
     // Livedata
     implementation 'androidx.compose.runtime:runtime-livedata:1.2.0-alpha04'
+
+    // Permissions
+    implementation "com.google.accompanist:accompanist-permissions:0.21.1-beta"
 }

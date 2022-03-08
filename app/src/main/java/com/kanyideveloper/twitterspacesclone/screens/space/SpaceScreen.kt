@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FavoriteBorder
@@ -218,21 +219,35 @@ fun BottomMicItem(
 
 @Composable
 fun PeerItem(peer: HMSPeer, viewModel: SpaceViewModel) {
+
+    val colors = listOf(
+        0xFF556b2f,
+        0xFF5f6f7e,
+        0xFF8c53c6,
+        0xFFcc0000,
+        0xFF8b4513,
+    )
+
     Column(
         Modifier.padding(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.avatar),
-            modifier = Modifier
-                .size(70.dp)
-                .clip(CircleShape),
-            contentScale = ContentScale.Crop,
-            contentDescription = null
-        )
+
+            Box(
+                modifier = Modifier.size(60.dp).clip(CircleShape).background(Color(colors.random())),
+                contentAlignment = Alignment.Center
+            ){
+
+                Text(
+                    text = viewModel.getNameInitials(peer.name),
+                    color = Color.White,
+                    style = MaterialTheme.typography.h6
+                )
+        }
+
         Text(
-            /*peer.name*/ viewModel.getNameInitials(peer.name),
+            peer.name,
             modifier = Modifier
                 .padding(4.dp)
                 .fillMaxWidth(),
