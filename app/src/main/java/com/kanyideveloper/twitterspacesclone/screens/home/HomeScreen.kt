@@ -24,7 +24,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -60,7 +59,7 @@ fun HomeScreen(
                 Column(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
-                )  {
+                ) {
                     var name by remember { mutableStateOf("") }
                     TextField(
                         value = name,
@@ -122,9 +121,7 @@ fun HomeScreen(
                                     bottomSheetScaffoldState.bottomSheetState.collapse()
                                 }
                             }
-                        },
-                    viewModel = viewModel,
-                    navigator = navigator
+                        }
                 )
             }
         }
@@ -135,10 +132,7 @@ fun HomeScreen(
 @Composable
 fun SpaceItem(
     modifier: Modifier = Modifier,
-    viewModel: SpaceViewModel = hiltViewModel(),
-    navigator: DestinationsNavigator
 ) {
-    
     Card(
         modifier = Modifier
             .fillMaxWidth()

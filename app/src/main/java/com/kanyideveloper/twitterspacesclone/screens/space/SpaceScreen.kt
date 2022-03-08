@@ -12,32 +12,22 @@ import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.PeopleOutline
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Observer
 import com.kanyideveloper.twitterspacesclone.R
 import com.kanyideveloper.twitterspacesclone.ui.theme.TwitterBlue
-import com.kanyideveloper.twitterspacesclone.util.Resource
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import live.hms.video.connection.degredation.Peer
-import live.hms.video.media.tracks.HMSAudioTrack
 import live.hms.video.sdk.models.HMSPeer
-import timber.log.Timber
 
 @OptIn(ExperimentalFoundationApi::class)
 @Destination
@@ -52,9 +42,10 @@ fun SpaceScreen(
         viewModel.startMeeting(name)
     }
 
-    Timber.d("All peers: ${viewModel.peers.value}")
-
     Box(Modifier.fillMaxSize()) {
+
+        val peers = viewModel.peers.value
+
 
         if (viewModel.loading) {
             CircularProgressIndicator(
@@ -102,18 +93,14 @@ fun SpaceScreen(
 
                 Spacer(modifier = Modifier.height(10.dp))
 
-                    val peers = viewModel.peers.value
-                    LazyVerticalGrid(
-                        cells = GridCells.Fixed(4),
-                        contentPadding = PaddingValues(8.dp)
-                    ) {
-                        items(peers) { peer ->
-                            Timber.d(peer.toString())
-                            PeerItem(
-                                peer
-                            )
-                        }
+                LazyVerticalGrid(
+                    cells = GridCells.Fixed(4),
+                    contentPadding = PaddingValues(8.dp)
+                ) {
+                    items(peers) { peer ->
+                        PeerItem(peer, viewModel)
                     }
+                }
             }
         }
 
@@ -133,6 +120,9 @@ fun BottomMicItem(
     modifier: Modifier = Modifier,
     viewModel: SpaceViewModel
 ) {
+
+    val hmsLocalPeer = viewModel.localPeer.value
+
     Row(
         modifier = modifier
             .padding(8.dp),
@@ -147,8 +137,12 @@ fun BottomMicItem(
             ) {
                 IconButton(
                     onClick = {
+                        if (hmsLocalPeer?.hmsRole?.name == "listener") {
+                            return@IconButton
+                        }
+
                         viewModel.setLocalAudioEnabled(
-                            !viewModel.isLocalAudioEnabled()!!
+                            !viewModel.isLocalAudioEnabled()
                         )
                     },
                     modifier = Modifier
@@ -165,7 +159,17 @@ fun BottomMicItem(
                 }
 
                 Text(
-                    text = "Mic is on",
+                    text = when (hmsLocalPeer?.audioTrack?.isMute) {
+                        true -> {
+                            "Mic is off"
+                        }
+                        false -> {
+                            "Mic is on"
+                        }
+                        else -> {
+                            "Null"
+                        }
+                    },
                     fontSize = 10.sp,
                     color = Color.LightGray
                 )
@@ -213,7 +217,7 @@ fun BottomMicItem(
 }
 
 @Composable
-fun PeerItem(peer: HMSPeer) {
+fun PeerItem(peer: HMSPeer, viewModel: SpaceViewModel) {
     Column(
         Modifier.padding(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -228,7 +232,7 @@ fun PeerItem(peer: HMSPeer) {
             contentDescription = null
         )
         Text(
-            peer.name,
+            /*peer.name*/ viewModel.getNameInitials(peer.name),
             modifier = Modifier
                 .padding(4.dp)
                 .fillMaxWidth(),
@@ -240,7 +244,7 @@ fun PeerItem(peer: HMSPeer) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                painter = if (peer.audioTrack?.isMute!!) {
+                painter = if (peer.audioTrack?.isMute == true) {
                     painterResource(id = R.drawable.ic_mute_mic)
                 } else {
                     painterResource(id = R.drawable.audio_wave)

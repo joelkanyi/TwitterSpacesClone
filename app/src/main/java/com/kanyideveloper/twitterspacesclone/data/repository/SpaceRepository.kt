@@ -12,18 +12,6 @@ class SpaceRepository @Inject constructor(
     private val api: TokenRequestApi,
     private val hmsSdk: HMSSDK
 ) {
-    /**
-     * Inject the HMSSDK - Done
-     * Token Request API - Done
-     * */
-
-    /**
-     * Define a function to join a selected space (under the hood -> request for the token)
-     * Define a function to join a room
-     * Define a function to leave a room
-     * Define a function to mute and unmute
-     * */
-
     suspend fun login(
         userName: String,
         roomId: String = "620b0d326f2b876d58ef3bc7"
