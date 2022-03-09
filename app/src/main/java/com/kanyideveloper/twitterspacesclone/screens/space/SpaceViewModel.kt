@@ -5,38 +5,23 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.compose.ui.text.toUpperCase
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kanyideveloper.twitterspacesclone.data.repository.SpaceRepository
-import com.kanyideveloper.twitterspacesclone.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import live.hms.video.error.HMSException
-import live.hms.video.media.settings.HMSAudioTrackSettings
-import live.hms.video.media.settings.HMSTrackSettings
 import live.hms.video.media.tracks.*
-import live.hms.video.sdk.HMSActionResultListener
-import live.hms.video.sdk.HMSSDK
 import live.hms.video.sdk.HMSUpdateListener
 import live.hms.video.sdk.models.*
 import live.hms.video.sdk.models.enums.HMSPeerUpdate
 import live.hms.video.sdk.models.enums.HMSRoomUpdate
 import live.hms.video.sdk.models.enums.HMSTrackUpdate
-import live.hms.video.sdk.models.role.HMSRole
 import live.hms.video.sdk.models.trackchangerequest.HMSChangeTrackStateRequest
-import live.hms.video.utils.HMSCoroutineScope
 import timber.log.Timber
-import java.util.*
 import javax.inject.Inject
 import kotlin.Comparator
-import kotlin.collections.ArrayList
 
 @HiltViewModel
 class SpaceViewModel @Inject constructor(
@@ -59,6 +44,9 @@ class SpaceViewModel @Inject constructor(
         mutableStateOf(emptyList(), neverEqualPolicy())
     val peers: State<List<HMSPeer>> = _peers
 
+    private val _localPeer: MutableState<HMSLocalPeer?> = mutableStateOf(null)
+    val localPeer: State<HMSLocalPeer?> = _localPeer
+
     var loading = false
 
     fun leaveTheSpace() {
@@ -71,6 +59,19 @@ class SpaceViewModel @Inject constructor(
 
     fun setLocalAudioEnabled(enabled: Boolean) {
         repository.setLocalAudioEnabled(enabled)
+    }
+
+    fun getNameInitials(name: String) : String{
+        val words = name.uppercase().trim()
+        val wordss = words.split("[,.!?\\s]+".toRegex())
+
+        return if (wordss.size >= 2){
+            "${wordss[0].first()}${wordss[1].first()}"
+        } else if (wordss.size <= 1) {
+            words.substring(0,2)
+        }else{
+            "${wordss[0].first()}"
+        }
     }
 
     fun startMeeting(name: String) {
@@ -88,15 +89,13 @@ class SpaceViewModel @Inject constructor(
 
                     override fun onError(error: HMSException) {
                         loading = false
-                        Timber.d("An Error occurred")
                         Timber.d(error.message)
                     }
 
                     override fun onJoin(room: HMSRoom) {
                         loading = false
-                        Timber.d("Room joined")
                         _peers.value = room.peerList.asList()
-                        Timber.d("Peers: ${peers.value}")
+                        _localPeer.value = room.localPeer
                     }
 
                     override fun onMessageReceived(message: HMSMessage) {
@@ -104,6 +103,8 @@ class SpaceViewModel @Inject constructor(
                     }
 
                     override fun onPeerUpdate(type: HMSPeerUpdate, peer: HMSPeer) {
+                        Timber.d("There was a peer update: $type")
+
                         // Handle peer updates.
                         when (type) {
                             HMSPeerUpdate.PEER_JOINED -> _peers.value =
@@ -111,7 +112,6 @@ class SpaceViewModel @Inject constructor(
                             HMSPeerUpdate.PEER_LEFT -> _peers.value =
                                 _peers.value.filter { currentPeer -> currentPeer.peerID != peer.peerID }
                         }
-                        Timber.d("There was a peer update: $type")
                     }
 
                     override fun onRoleChangeRequest(request: HMSRoleChangeRequest) {
@@ -129,16 +129,13 @@ class SpaceViewModel @Inject constructor(
                     ) {
                         Timber.d("Somebody's audio/video changed")
                         when (type) {
-                            HMSTrackUpdate.TRACK_MUTED,
-                            HMSTrackUpdate.TRACK_UNMUTED,
-                            HMSTrackUpdate.TRACK_ADDED,
-                            HMSTrackUpdate.TRACK_REMOVED
-                            -> {
+                            HMSTrackUpdate.TRACK_REMOVED -> {
                                 Timber.d("Checking, $type, $track")
                                 if (track.type == HMSTrackType.AUDIO) {
                                     _peers.value =
                                         _peers.value.filter { currentPeer -> currentPeer.peerID != peer.peerID }
                                             .plus(peer).sortedWith(peerComparator)
+
                                 } else {
                                     Timber.d("Not processed, $type, $track")
                                 }
