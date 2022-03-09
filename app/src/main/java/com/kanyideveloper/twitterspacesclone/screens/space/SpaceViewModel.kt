@@ -5,7 +5,6 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
-import androidx.compose.ui.text.toUpperCase
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kanyideveloper.twitterspacesclone.data.repository.SpaceRepository
@@ -61,15 +60,15 @@ class SpaceViewModel @Inject constructor(
         repository.setLocalAudioEnabled(enabled)
     }
 
-    fun getNameInitials(name: String) : String{
+    fun getNameInitials(name: String): String {
         val words = name.uppercase().trim()
         val wordss = words.split("[,.!?\\s]+".toRegex())
 
-        return if (wordss.size >= 2){
+        return if (wordss.size >= 2) {
             "${wordss[0].first()}${wordss[1].first()}"
         } else if (wordss.size <= 1) {
-            words.substring(0,2)
-        }else{
+            words.substring(0, 2)
+        } else {
             "${wordss[0].first()}"
         }
     }
@@ -77,7 +76,7 @@ class SpaceViewModel @Inject constructor(
     fun startMeeting(name: String) {
         loading = true
         viewModelScope.launch {
-            val token = repository.login(name).token
+            val token = repository.requestToken(name).token
 
             repository.joinRoom(
                 name,

@@ -1,9 +1,9 @@
 package com.kanyideveloper.twitterspacesclone.di
 
 import android.app.Application
+import com.kanyideveloper.twitterspacesclone.BuildConfig.TOKEN_ENDPOINT
 import com.kanyideveloper.twitterspacesclone.data.network.TokenRequestApi
 import com.kanyideveloper.twitterspacesclone.data.repository.SpaceRepository
-import com.kanyideveloper.twitterspacesclone.util.Constants.TOKEN_ENDPOINT
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

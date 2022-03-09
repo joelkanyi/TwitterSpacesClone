@@ -12,7 +12,7 @@ class SpaceRepository @Inject constructor(
     private val api: TokenRequestApi,
     private val hmsSdk: HMSSDK
 ) {
-    suspend fun login(
+    suspend fun requestToken(
         userName: String,
         roomId: String = "620b0d326f2b876d58ef3bc7"
     ): TokenResponse {
@@ -39,6 +39,6 @@ class SpaceRepository @Inject constructor(
     }
 
     fun isLocalAudioEnabled(): Boolean? {
-        return hmsSdk.getLocalPeer()?.audioTrack?.isMute?.not()
+        return hmsSdk.getLocalPeer()?.audioTrack?.isMute
     }
 }
