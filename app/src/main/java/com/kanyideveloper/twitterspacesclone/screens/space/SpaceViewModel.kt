@@ -27,18 +27,6 @@ class SpaceViewModel @Inject constructor(
     private val repository: SpaceRepository
 ) : ViewModel() {
 
-    private val peerComparator = Comparator<HMSPeer> { o1, o2 ->
-        Timber.d("Sorting")
-        if (o1.isLocal && o2.isLocal) {
-            throw Exception("Two locals can't be present at the same time")
-        }
-        when {
-            o1.isLocal -> -1
-            o2.isLocal -> 1
-            else -> o1.peerID.compareTo(o2.peerID)
-        }
-    }
-
     private val _peers: MutableState<List<HMSPeer>> =
         mutableStateOf(emptyList(), neverEqualPolicy())
     val peers: State<List<HMSPeer>> = _peers
@@ -52,8 +40,8 @@ class SpaceViewModel @Inject constructor(
         repository.leaveRoom()
     }
 
-    fun isLocalAudioEnabled(): Boolean? {
-        return repository.isLocalAudioEnabled()
+    fun isLocalAudioEnabled(): Boolean {
+        return repository.isLocalAudioEnabled() == true
     }
 
     fun setLocalAudioEnabled(enabled: Boolean) {
@@ -83,42 +71,43 @@ class SpaceViewModel @Inject constructor(
                 token,
                 object : HMSUpdateListener {
                     override fun onChangeTrackStateRequest(details: HMSChangeTrackStateRequest) {
-                        Timber.d("onChangeTrackStateRequest")
+                        Timber.d("onChangeTrackStateRequest, track: ${details.track}, requestedBy: ${details.requestedBy}, mute: ${details.mute}")
                     }
 
                     override fun onError(error: HMSException) {
                         loading = false
-                        Timber.d(error.message)
+                        Timber.d("An error occurred: ${error.message}")
                     }
 
                     override fun onJoin(room: HMSRoom) {
+                        Timber.d("onJoin: ${room.name}")
                         loading = false
                         _peers.value = room.peerList.asList()
                         _localPeer.value = room.localPeer
                     }
 
                     override fun onMessageReceived(message: HMSMessage) {
-                        Timber.d(message.message)
+                        Timber.d("Message: ${message.message}")
                     }
 
                     override fun onPeerUpdate(type: HMSPeerUpdate, peer: HMSPeer) {
-                        Timber.d("There was a peer update: $type")
+                        Timber.d("There was a peer update: $type peer: $peer")
 
                         // Handle peer updates.
                         when (type) {
                             HMSPeerUpdate.PEER_JOINED -> _peers.value =
-                                _peers.value.plus(peer).sortedWith(peerComparator)
+                                _peers.value.plus(peer)
                             HMSPeerUpdate.PEER_LEFT -> _peers.value =
                                 _peers.value.filter { currentPeer -> currentPeer.peerID != peer.peerID }
                         }
                     }
 
                     override fun onRoleChangeRequest(request: HMSRoleChangeRequest) {
-                        Timber.d("Role change request")
+                        Timber.d("Role change request: suggested role: ${request.suggestedRole}, by: ${request.requestedBy} ")
                     }
 
                     override fun onRoomUpdate(type: HMSRoomUpdate, hmsRoom: HMSRoom) {
-                        Timber.d("Room update")
+                        Timber.d("Room update: type: ${type.name} room: ${hmsRoom.name}")
                     }
 
                     override fun onTrackUpdate(
@@ -126,14 +115,14 @@ class SpaceViewModel @Inject constructor(
                         track: HMSTrack,
                         peer: HMSPeer
                     ) {
-                        Timber.d("Somebody's audio/video changed")
+                        Timber.d("Somebody's audio/video changed: type: $type, track: $track, peer: $peer")
                         when (type) {
                             HMSTrackUpdate.TRACK_REMOVED -> {
                                 Timber.d("Checking, $type, $track")
                                 if (track.type == HMSTrackType.AUDIO) {
                                     _peers.value =
                                         _peers.value.filter { currentPeer -> currentPeer.peerID != peer.peerID }
-                                            .plus(peer).sortedWith(peerComparator)
+                                            .plus(peer)
 
                                 } else {
                                     Timber.d("Not processed, $type, $track")
